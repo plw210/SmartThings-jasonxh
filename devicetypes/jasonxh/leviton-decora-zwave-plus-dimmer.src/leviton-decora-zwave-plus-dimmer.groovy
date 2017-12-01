@@ -12,10 +12,11 @@
  *
  */
 metadata {
-    definition (name: "Leviton Decora Z-Wave Plus Dimmer", namespace: "jasonxh", author: "Jason Xia", ocfDeviceType: "oic.d.light") {
+    definition (name: "Leviton Decora Z-Wave Plus Dimmer with Health Check", namespace: "plw210", author: "Paul Wilder", ocfDeviceType: "oic.d.light") {
         capability "Actuator"
         capability "Configuration"
-        //capability "Health Check"
+// plw210-Comment: reenabled Health Check by uncommenting
+        capability "Health Check"
         capability "Indicator"
         capability "Light"
         capability "Polling"
@@ -274,8 +275,13 @@ def poll() {
     delayBetween(statusCommands, commandDelayMs)
 }
 
+
+// plw210-Comment: ping section replaced with the same user for the Smartthings Zwave Switch device handler
+/**
+ * PING is used by Device-Watch in attempt to reach the Device
+ * */
 def ping() {
-    poll()
+	refresh()
 }
 
 def refresh() {
@@ -332,6 +338,9 @@ private static int getDefaultLevelIncrement() { 10 }
 private initialize() {
     // Device-Watch simply pings if no device events received for 32min(checkInterval)
     //sendEvent(name: "checkInterval", value: 2 * 15 * 60 + 2 * 60, displayed: false, data: [protocol: "zwave", hubHardwareId: device.hub.hardwareID])
+
+// plw210-comment: Pulled code from SmartThings standard ZWave Switch which offlinePingable: "1" in its call
+      sendEvent(name: "checkInterval", value: 2 * 15 * 60 + 2 * 60, displayed: false, data: [protocol: "zwave", hubHardwareId: device.hub.hardwareID, offlinePingable: "1"])
 }
 
 private zwaveEvent(physicalgraph.zwave.commands.basicv1.BasicReport cmd) {
